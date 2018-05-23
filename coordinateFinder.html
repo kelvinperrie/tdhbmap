@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Drawing tools</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+        /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+        
+        #map {
+            height: 100%;
+        }
+        /* Optional: Makes the sample page fill the window. */
+        
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <script>
+        // This example requires the Drawing library. Include the libraries=drawing
+        // parameter when you first load the API. For example:
+        // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=drawing">
+
+        function initMap() {
+            var uluru = {
+                lat: -39.072474,
+                lng: 174.055992
+            };
+            var map = new google.maps.Map(document.getElementById('map'), {
+                center: uluru,
+                zoom: 17,
+                mapTypeId: 'satellite'
+            });
+
+
+
+            // this creates the base options for the drawings (polygons/buildings)
+            var drawingManager = new google.maps.drawing.DrawingManager({
+                drawingMode: google.maps.drawing.OverlayType.MARKER,
+                drawingControl: true,
+                drawingControlOptions: {
+                    position: google.maps.ControlPosition.TOP_CENTER,
+                    drawingModes: ['marker', 'circle', 'polygon', 'polyline', 'rectangle']
+                },
+                markerOptions: {
+                    icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'
+                },
+                rectangleOptions: {
+                    fillOpacity: 0
+                },
+                circleOptions: {
+                    //fillColor: '#ffff00',
+                    fillOpacity: 1,
+                    strokeWeight: 5,
+                    clickable: false,
+                    editable: true,
+                    zIndex: 1
+                }
+            });
+            drawingManager.setMap(map);
+
+            // this just outputs the coordinates once a polygon is drawn on the screen
+            google.maps.event.addListener(drawingManager, 'overlaycomplete', function(event) {
+                if (event.type == 'rectangle') {
+                    var ne = event.overlay.getBounds().getNorthEast();
+                    var sw = event.overlay.getBounds().getSouthWest();
+
+                    var bounds = "north: " + ne.lat() + ", south: " + sw.lat() + ", east: " + ne.lng() + ", west: " + sw.lng();
+                    console.log(bounds);
+                }
+                if (event.type == 'polygon') {
+                    //var radius = event.overlay.getRadius();
+                    var coordinatesArray = event.overlay.getPath().getArray();
+                    var allCoordinates = "";
+                    for (var i = 0; i < coordinatesArray.length; i++) {
+                        //console.log("new google.maps.LatLng(" + coordinatesArray[i].lat() + ", " + coordinatesArray[i].lng() + "),");
+                        var coord = "{lat: " + coordinatesArray[i].lat() + ", lng: " + coordinatesArray[i].lng() + "},";
+                        allCoordinates = allCoordinates + coord;
+                    }
+                    console.log(allCoordinates);
+                }
+                if (event.type == 'marker') {
+                    var lat = event.overlay.getPosition().lat();
+                    var lng = event.overlay.getPosition().lng();
+                    var coord = "{lat: " + lat + ", lng: " + lng + "},";
+                    console.log(coord);
+                }
+                //var buildingCoords = [
+                //new google.maps.LatLng(-39.07470621091739, 174.05701607465744),
+                //new google.maps.LatLng(-39.07475202073784, 174.0570965409279),
+                //new google.maps.LatLng(-39.074962329077316, 174.05688732862473),
+                //new google.maps.LatLng(-39.07491027261602, 174.0568122267723)
+                //];
+
+
+
+
+            });
+        }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDzfpFt6f4Tz9MUjQed0SoIVfbDaUHfavE&libraries=drawing&callback=initMap" async defer></script>
+</body>
+
+</html>
